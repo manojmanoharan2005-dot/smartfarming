@@ -302,9 +302,8 @@
 
 <script>
 function startGrowing(cropName, probability) {
-    if(confirm(`Start growing ${cropName} with ${(probability*100).toFixed(1)}% suitability?`)) {
-        window.location.href = `/crop/start/${cropName}/${probability}`;
-    }
+    // Redirect to start growing page
+    window.location.href = `/growing/start/${cropName.toLowerCase()}`;
 }
 
 function viewDetails(cropName) {

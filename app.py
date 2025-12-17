@@ -4,6 +4,7 @@ from controllers.dashboard_routes import dashboard_bp
 from controllers.crop_routes import crop_bp
 from controllers.fertilizer_routes import fertilizer_bp
 from controllers.disease_routes import disease_bp
+from controllers.growing_routes import growing_bp
 from utils.db import init_db
 import os
 from datetime import datetime
@@ -26,6 +27,7 @@ app.register_blueprint(dashboard_bp)
 app.register_blueprint(crop_bp)
 app.register_blueprint(fertilizer_bp)
 app.register_blueprint(disease_bp)
+app.register_blueprint(growing_bp)
 
 # Global context processor for date and user info
 @app.context_processor

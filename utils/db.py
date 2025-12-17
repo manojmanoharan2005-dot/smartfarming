@@ -14,6 +14,7 @@ USERS_FILE = os.path.join(DATA_DIR, 'users.json')
 CROPS_FILE = os.path.join(DATA_DIR, 'crops.json')
 FERTILIZERS_FILE = os.path.join(DATA_DIR, 'fertilizers.json')
 DISEASES_FILE = os.path.join(DATA_DIR, 'diseases.json')
+GROWING_FILE = os.path.join(DATA_DIR, 'growing_activities.json')
 
 client = None
 db = None
@@ -25,7 +26,7 @@ def init_db(app):
     os.makedirs(DATA_DIR, exist_ok=True)
     
     # Initialize JSON files if they don't exist
-    for file_path in [USERS_FILE, CROPS_FILE, FERTILIZERS_FILE, DISEASES_FILE]:
+    for file_path in [USERS_FILE, CROPS_FILE, FERTILIZERS_FILE, DISEASES_FILE, GROWING_FILE]:
         if not os.path.exists(file_path):
             with open(file_path, 'w') as f:
                 json.dump({}, f)
@@ -234,3 +235,125 @@ def get_user_diseases(user_id):
             'detected_at': datetime.utcnow()
         }
     ]
+
+def save_growing_activity(activity_data):
+    """Save a growing activity to database"""
+    import uuid
+    try:
+        # Load existing activities
+        with open(GROWING_FILE, 'r') as f:
+            growing_data = json.load(f)
+        
+        # Generate unique ID
+        activity_id = str(uuid.uuid4())
+        activity_data['_id'] = activity_id
+        
+        # Save activity
+        user_id = activity_data.get('user_id')
+        if user_id not in growing_data:
+            growing_data[user_id] = []
+        
+        growing_data[user_id].append(activity_data)
+        
+        # Write back to file
+        with open(GROWING_FILE, 'w') as f:
+            json.dump(growing_data, f, indent=2)
+        
+        print(f"🌱 Growing activity saved: {activity_data.get('crop_display_name')} [ID: {activity_id}]")
+        return type('MockResult', (), {'inserted_id': activity_id})()
+    except Exception as e:
+        print(f"Error saving growing activity: {e}")
+        return None
+
+def get_user_growing_activities(user_id, status='active'):
+    """Get user's growing activities"""
+    try:
+        with open(GROWING_FILE, 'r') as f:
+            growing_data = json.load(f)
+        
+        # Get user's activities
+        user_activities = growing_data.get(user_id, [])
+        
+        # Filter by status if specified
+        if status:
+            user_activities = [a for a in user_activities if a.get('status') == status]
+        
+        return user_activities
+    except Exception as e:
+        print(f"Error loading growing activities: {e}")
+        return []
+
+def update_growing_activity(activity_id, task_index):
+    """Update growing activity task completion"""
+    print(f"✅ Task {task_index} completed for activity {activity_id}")
+    return True
+
+def delete_growing_activity(activity_id, user_id):
+    """Delete a growing activity"""
+    try:
+        # Load existing activities
+        with open(GROWING_FILE, 'r') as f:
+            growing_data = json.load(f)
+        
+        # Get user's activities
+        user_activities = growing_data.get(user_id, [])
+        
+        # Find and remove the activity
+        initial_count = len(user_activities)
+        user_activities = [a for a in user_activities if a.get('_id') != activity_id]
+        
+        if len(user_activities) < initial_count:
+            # Activity was found and removed
+            growing_data[user_id] = user_activities
+            
+            # Write back to file
+            with open(GROWING_FILE, 'w') as f:
+                json.dump(growing_data, f, indent=2)
+            
+            print(f"🗑️ Successfully deleted activity {activity_id} for user {user_id}")
+            return True
+        else:
+            print(f"⚠️ Activity {activity_id} not found for user {user_id}")
+            return False
+            
+    except Exception as e:
+        print(f"Error deleting activity: {e}")
+        return False
+
+def get_dashboard_notifications(user_id):
+    """Get notifications for dashboard"""
+    from datetime import datetime, timedelta
+    notifications = []
+    
+    # Get active growing activities
+    activities = get_user_growing_activities(user_id)
+    
+    for activity in activities:
+        # Check for upcoming tasks
+        start_date = datetime.fromisoformat(activity['created_at'])
+        days_passed = (datetime.now() - start_date).days
+        weeks_passed = days_passed // 7
+        
+        # Find pending tasks for current week
+        for task in activity['tasks']:
+            if task['week'] == weeks_passed + 1:
+                notifications.append({
+                    'type': 'task',
+                    'crop': activity['crop_display_name'],
+                    'message': f"Week {task['week']} task: {task['task']}",
+                    'priority': 'high'
+                })
+        
+        # Check if harvest is near (within 7 days)
+        harvest_date = datetime.strptime(activity['harvest_date'], '%Y-%m-%d')
+        days_to_harvest = (harvest_date - datetime.now()).days
+        
+        if 0 <= days_to_harvest <= 7:
+            notifications.append({
+                'type': 'harvest',
+                'crop': activity['crop_display_name'],
+                'message': f"Harvest ready in {days_to_harvest} days!",
+                'priority': 'high'
+            })
+    
+    return notifications

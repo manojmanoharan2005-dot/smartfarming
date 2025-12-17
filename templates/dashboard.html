@@ -109,7 +109,58 @@
                         <p>Saved Fertilizers</p>
                     </div>
                 </div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">🌱</div>
+                    <div class="stat-info">
+                        <h3>{{ stats.active_crops }}</h3>
+                        <p>Active Growing</p>
+                    </div>
+                </div>
             </div>
+
+            <!-- Notifications Section -->
+            {% if notifications %}
+            <div class="notifications-section">
+                <h3 class="section-title">🔔 Active Notifications</h3>
+                <div class="notifications-list">
+                    {% for notification in notifications %}
+                    <div class="notification-card {{ notification.priority }}">
+                        <div class="notification-icon">
+                            {% if notification.type == 'task' %}⚡
+                            {% elif notification.type == 'harvest' %}🎯
+                            {% else %}📢{% endif %}
+                        </div>
+                        <div class="notification-content">
+                            <h4>{{ notification.crop }}</h4>
+                            <p>{{ notification.message }}</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Active Growing Activities -->
+            {% if growing_activities %}
+            <div class="progress-section">
+                <h3 class="section-title">🌱 Active Growing Activities</h3>
+                {% for activity in growing_activities %}
+                <div class="crop-progress" id="activity-{{ activity._id }}">
+                    <div class="crop-header">
+                        <h4 class="crop-name">{{ activity.crop_display_name }}</h4>
+                        <div class="crop-actions">
+                            <span class="crop-percentage">{{ activity.current_stage }}/{{ activity.tasks|length }} tasks</span>
+                            <button class="delete-btn" onclick="deleteActivity('{{ activity._id }}')">🗑️</button>
+                        </div>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: {{ (activity.current_stage / activity.tasks|length * 100) }}%"></div>
+                    </div>
+                    <p class="crop-details">Started: {{ activity.start_date }} • Harvest: {{ activity.harvest_date }}</p>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
 
             <!-- Recent Activity Section -->
             <div class="recent-activity">
@@ -125,27 +176,6 @@
                 </ul>
                 {% else %}
                 <p class="no-activity">No recent activity. Your dashboard will show actions like recommendations and detections here.</p>
-                {% endif %}
-            </div>
-            <div class="progress-section">
-                <h3 class="section-title">Crop Progress</h3>
-                {% if saved_crops %}
-                    {% for crop in saved_crops %}
-                    <div class="crop-progress">
-                        <div class="crop-header">
-                            <h4 class="crop-name">{{ crop.crop_name }}</h4>
-                            <span class="crop-percentage">{{ "%.0f"|format(crop.probability * 100) }}%</span>
-                        </div>
-                        <div class="progress-bar">
-                            <div class="progress-fill" style="width: {{ crop.probability * 100 }}%"></div>
-                        </div>
-                        <p class="crop-details">Sowing Date: {{ crop.sowing_date }} • Status: {{ crop.status|title }}</p>
-                    </div>
-                    {% endfor %}
-                {% else %}
-                    <div class="no-crops">
-                        <p>No crops being monitored. <a href="{{ url_for('crop.crop_suggestion') }}">Get started with crop recommendations</a></p>
-                    </div>
                 {% endif %}
             </div>
         </div>
@@ -212,5 +242,39 @@ window.onclick = function(event) {
         modal.style.display = 'none';
     }
 };
+
+// Delete growing activity
+function deleteActivity(activityId) {
+    if (confirm('Are you sure you want to delete this growing activity?')) {
+        fetch(`/growing/delete/${activityId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Remove the activity element with animation
+                const activityElement = document.getElementById(`activity-${activityId}`);
+                if (activityElement) {
+                    activityElement.style.opacity = '0';
+                    activityElement.style.transform = 'translateX(-20px)';
+                    setTimeout(() => {
+                        location.reload();
+                    }, 300);
+                } else {
+                    location.reload();
+                }
+            } else {
+                alert('Failed to delete activity: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Delete error:', error);
+            alert('Error deleting activity. Please try again.');
+        });
+    }
+}
 </script>
 {% endblock %}
