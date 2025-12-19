@@ -2,11 +2,13 @@ from datetime import datetime
 import os
 import json
 from pymongo import MongoClient
+from dotenv import load_dotenv
 
-# MongoDB Atlas connection string with credentials
-# Atlas SQL Interface is READ-ONLY - does not support insert/update/delete operations
-# Using file-based storage for full CRUD functionality
-MONGODB_URI = None  # Disabled - Atlas SQL endpoint doesn't support write operations
+# Load environment variables
+load_dotenv()
+
+# MongoDB Atlas connection string from environment variable
+MONGODB_URI = os.getenv('MONGODB_URI')
 
 # Local file-based storage directory and file paths (used when MongoDB is not available)
 DATA_DIR = os.path.join(os.path.dirname(__file__), '..', 'data')
