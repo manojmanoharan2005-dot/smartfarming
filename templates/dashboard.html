@@ -198,6 +198,81 @@
             </div>
             {% endif %}
 
+            <!-- Weather Notifications Section -->
+            {% if weather_data %}
+            <div class="weather-section">
+                <div class="section-header">
+                    <h3 class="section-title">🌤️ Weather Forecast & Farming Alerts - {{ weather_data.current.location }}</h3>
+                    <span class="prediction-subtitle">Real-time weather updates and agricultural recommendations</span>
+                </div>
+
+                <!-- Current Weather -->
+                <div class="current-weather-card">
+                    <div class="current-weather-main">
+                        <div class="weather-icon-large">{{ weather_data.current.icon }}</div>
+                        <div class="weather-details">
+                            <h2 class="current-temp">{{ weather_data.current.temperature }}°C</h2>
+                            <p class="current-condition">{{ weather_data.current.condition }}</p>
+                            <p class="weather-location">📍 {{ weather_data.current.location }}</p>
+                        </div>
+                    </div>
+                    <div class="weather-metrics">
+                        <div class="metric">
+                            <span class="metric-icon">💧</span>
+                            <span class="metric-label">Humidity</span>
+                            <span class="metric-value">{{ weather_data.current.humidity }}%</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-icon">💨</span>
+                            <span class="metric-label">Wind</span>
+                            <span class="metric-value">{{ weather_data.current.wind_speed }} km/h</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Weather Alerts -->
+                {% if weather_data.alerts %}
+                <div class="weather-alerts">
+                    <h4 class="alerts-title">⚡ Farming Alerts</h4>
+                    <div class="alerts-grid">
+                        {% for alert in weather_data.alerts %}
+                        <div class="alert-card {{ alert.type }}">
+                            <div class="alert-icon">{{ alert.icon }}</div>
+                            <div class="alert-content">
+                                <h5 class="alert-title">{{ alert.title }}</h5>
+                                <p class="alert-message">{{ alert.message }}</p>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- 7-Day Forecast -->
+                <div class="forecast-section">
+                    <h4 class="forecast-title">📅 7-Day Forecast</h4>
+                    <div class="forecast-grid">
+                        {% for day in weather_data.forecast %}
+                        <div class="forecast-day-card">
+                            <p class="forecast-day">{{ day.day }}</p>
+                            <div class="forecast-icon">{{ day.icon }}</div>
+                            <p class="forecast-condition">{{ day.condition }}</p>
+                            <div class="forecast-temps">
+                                <span class="temp-high">{{ day.high }}°</span>
+                                <span class="temp-divider">/</span>
+                                <span class="temp-low">{{ day.low }}°</span>
+                            </div>
+                            <div class="rain-chance">
+                                <span class="rain-icon">💧</span>
+                                <span class="rain-percent">{{ day.rain_chance }}%</span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
             <!-- Saved Fertilizers Section -->
             {% if saved_fertilizers %}
             <div class="progress-section">
@@ -2012,6 +2087,135 @@ window.addEventListener('click', function(event) {
         closeChatbotModal();
     }
 });
+
+// Weather Auto-Update Functionality
+let weatherUpdateInterval;
+
+function updateWeather() {
+    fetch('{{ url_for("dashboard.weather_update") }}')
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                console.error('Weather update error:', data.error);
+                return;
+            }
+            
+            // Update current weather
+            updateCurrentWeather(data.current);
+            
+            // Update alerts
+            if (data.alerts && data.alerts.length > 0) {
+                updateWeatherAlerts(data.alerts);
+            }
+            
+            // Update forecast
+            if (data.forecast && data.forecast.length > 0) {
+                updateForecast(data.forecast);
+            }
+            
+            // Update last updated time
+            updateLastUpdatedTime(data.last_updated || new Date().toLocaleTimeString());
+        })
+        .catch(error => {
+            console.error('Failed to update weather:', error);
+        });
+}
+
+function updateCurrentWeather(current) {
+    const weatherCard = document.querySelector('.current-weather-card');
+    if (!weatherCard) return;
+    
+    // Update icon
+    const iconElement = weatherCard.querySelector('.weather-icon-large');
+    if (iconElement) iconElement.textContent = current.icon;
+    
+    // Update temperature
+    const tempElement = weatherCard.querySelector('.current-temp');
+    if (tempElement) tempElement.textContent = current.temperature + '°C';
+    
+    // Update condition
+    const conditionElement = weatherCard.querySelector('.current-condition');
+    if (conditionElement) conditionElement.textContent = current.condition;
+    
+    // Update humidity
+    const humidityElement = weatherCard.querySelector('.weather-metrics .metric:nth-child(1) .metric-value');
+    if (humidityElement) humidityElement.textContent = current.humidity + '%';
+    
+    // Update wind speed
+    const windElement = weatherCard.querySelector('.weather-metrics .metric:nth-child(2) .metric-value');
+    if (windElement) windElement.textContent = current.wind_speed + ' km/h';
+}
+
+function updateWeatherAlerts(alerts) {
+    const alertsGrid = document.querySelector('.alerts-grid');
+    if (!alertsGrid) return;
+    
+    alertsGrid.innerHTML = '';
+    alerts.forEach(alert => {
+        const alertCard = document.createElement('div');
+        alertCard.className = `alert-card ${alert.type}`;
+        alertCard.innerHTML = `
+            <div class="alert-icon">${alert.icon}</div>
+            <div class="alert-content">
+                <h5 class="alert-title">${alert.title}</h5>
+                <p class="alert-message">${alert.message}</p>
+            </div>
+        `;
+        alertsGrid.appendChild(alertCard);
+    });
+}
+
+function updateForecast(forecast) {
+    const forecastGrid = document.querySelector('.forecast-grid');
+    if (!forecastGrid) return;
+    
+    const forecastCards = forecastGrid.querySelectorAll('.forecast-day-card');
+    forecast.forEach((day, index) => {
+        if (forecastCards[index]) {
+            const card = forecastCards[index];
+            card.querySelector('.forecast-icon').textContent = day.icon;
+            card.querySelector('.forecast-condition').textContent = day.condition;
+            card.querySelector('.temp-high').textContent = day.high + '°';
+            card.querySelector('.temp-low').textContent = day.low + '°';
+            card.querySelector('.rain-percent').textContent = day.rain_chance + '%';
+        }
+    });
+}
+
+function updateLastUpdatedTime(time) {
+    let timeElement = document.querySelector('.weather-last-updated');
+    if (!timeElement) {
+        // Create the element if it doesn't exist
+        const weatherSection = document.querySelector('.weather-section .section-header');
+        if (weatherSection) {
+            timeElement = document.createElement('span');
+            timeElement.className = 'weather-last-updated';
+            timeElement.style.cssText = 'display: block; font-size: 12px; color: #6b7280; margin-top: 5px;';
+            weatherSection.appendChild(timeElement);
+        }
+    }
+    if (timeElement) {
+        timeElement.textContent = '🔄 Last updated: ' + time;
+    }
+}
+
+// Start auto-update when page loads (update every 5 minutes)
+{% if weather_data %}
+document.addEventListener('DOMContentLoaded', function() {
+    // Initial last updated time
+    updateLastUpdatedTime(new Date().toLocaleTimeString());
+    
+    // Update weather every 5 minutes (300000 ms)
+    weatherUpdateInterval = setInterval(updateWeather, 300000);
+});
+
+// Clear interval when leaving page
+window.addEventListener('beforeunload', function() {
+    if (weatherUpdateInterval) {
+        clearInterval(weatherUpdateInterval);
+    }
+});
+{% endif %}
 
 </script>
 {% endblock %}
