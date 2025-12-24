@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block title %}Register - Smart Farming Assistant{% endblock %}
+
+{% block content %}
+<section class="auth-section">
+    <div class="container">
+        <div class="auth-container">
+            <div class="auth-form-wrapper register-form">
+                <div class="auth-header">
+                    <h2>Create Your Account</h2>
+                    <p>Join thousands of farmers using smart technology</p>
+                </div>
+                
+                <form method="POST" class="modern-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="name">Full Name</label>
+                            <input type="text" id="name" name="name" required placeholder="Enter your full name">
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email Address</label>
+                            <input type="email" id="email" name="email" required placeholder="Enter your email">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="password">Password</label>
+                            <input type="password" id="password" name="password" required placeholder="Create password">
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">Phone Number</label>
+                            <input type="tel" id="phone" name="phone" pattern="[0-9]{10}" required placeholder="10-digit mobile number">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="state">State</label>
+                            <select id="state" name="state" required onchange="updateDistricts()">
+                                <option value="">Select your state</option>
+                                {% for state in states_districts.keys() %}
+                                    <option value="{{ state }}">{{ state }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="district">District</label>
+                            <select id="district" name="district" required>
+                                <option value="">Select your district</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary btn-full">Create Account</button>
+                </form>
+                
+                <div class="auth-footer">
+                    <p>Already have an account? <a href="{{ url_for('auth.login') }}">Sign in here</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+// Store states and districts data safely
+var statesDistricts = {};
+{% for state, districts in states_districts.items() %}
+statesDistricts["{{ state }}"] = [
+    {% for district in districts %}
+    "{{ district }}"{{ "," if not loop.last else "" }}
+    {% endfor %}
+];
+{% endfor %}
+
+function updateDistricts() {
+    const stateSelect = document.getElementById('state');
+    const districtSelect = document.getElementById('district');
+    const selectedState = stateSelect.value;
+    
+    districtSelect.innerHTML = '<option value="">Select your district</option>';
+    
+    if (selectedState && statesDistricts[selectedState]) {
+        statesDistricts[selectedState].forEach(function(district) {
+            const option = document.createElement('option');
+            option.value = district;
+            option.textContent = district;
+            districtSelect.appendChild(option);
+        });
+    }
+}
+</script>
+{% endblock %}

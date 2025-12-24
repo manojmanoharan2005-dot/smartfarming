@@ -2,35 +2,305 @@
 
 {% block title %}Login - Smart Farming Assistant{% endblock %}
 
+{% block styles %}
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #f1f3f6;
+    min-height: 100vh;
+}
+
+.auth-wrapper {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.auth-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    max-width: 1100px;
+    width: 100%;
+    background: white;
+    border-radius: 4px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.auth-left {
+    background: linear-gradient(135deg, #2874f0 0%, #0d5bdd 100%);
+    padding: 60px 40px;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.auth-left h1 {
+    font-size: 32px;
+    font-weight: 500;
+    margin-bottom: 20px;
+    line-height: 1.3;
+}
+
+.auth-left p {
+    font-size: 16px;
+    opacity: 0.9;
+    line-height: 1.6;
+    margin-bottom: 30px;
+}
+
+.feature-list {
+    list-style: none;
+    margin-top: 20px;
+}
+
+.feature-list li {
+    padding: 10px 0;
+    display: flex;
+    align-items: center;
+    font-size: 15px;
+}
+
+.feature-list li:before {
+    content: '✓';
+    display: inline-block;
+    margin-right: 12px;
+    font-weight: bold;
+    font-size: 18px;
+}
+
+.auth-right {
+    padding: 60px 50px;
+}
+
+.auth-header {
+    margin-bottom: 30px;
+}
+
+.auth-header h2 {
+    font-size: 24px;
+    font-weight: 500;
+    color: #212121;
+    margin-bottom: 8px;
+}
+
+.auth-header p {
+    color: #878787;
+    font-size: 14px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    color: #212121;
+    font-size: 13px;
+    font-weight: 500;
+    margin-bottom: 8px;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 14px 16px;
+    border: 1px solid #e0e0e0;
+    border-radius: 2px;
+    font-size: 15px;
+    transition: all 0.3s ease;
+    font-family: inherit;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: #2874f0;
+    box-shadow: 0 0 0 2px rgba(40, 116, 240, 0.1);
+}
+
+.btn-login {
+    width: 100%;
+    padding: 16px;
+    background: #fb641b;
+    color: white;
+    border: none;
+    border-radius: 2px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(251, 100, 27, 0.3);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.btn-login:hover {
+    background: #e85d17;
+    box-shadow: 0 4px 8px rgba(251, 100, 27, 0.4);
+}
+
+.auth-divider {
+    display: flex;
+    align-items: center;
+    margin: 25px 0;
+    color: #878787;
+    font-size: 13px;
+}
+
+.auth-divider:before,
+.auth-divider:after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: #e0e0e0;
+}
+
+.auth-divider span {
+    padding: 0 15px;
+}
+
+.auth-footer {
+    text-align: center;
+    margin-top: 25px;
+    padding-top: 25px;
+    border-top: 1px solid #f0f0f0;
+}
+
+.auth-footer p {
+    color: #878787;
+    font-size: 14px;
+}
+
+.auth-footer a {
+    color: #2874f0;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.auth-footer a:hover {
+    text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+    .auth-container {
+        grid-template-columns: 1fr;
+    }
+    
+    .auth-left {
+        display: none;
+    }
+    
+    .auth-right {
+        padding: 40px 30px;
+    }
+}
+
+/* Flash Messages */
+.flash-messages {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 10000;
+}
+
+.alert {
+    padding: 16px 20px;
+    border-radius: 4px;
+    margin-bottom: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    animation: slideIn 0.3s ease;
+}
+
+.alert-success {
+    background: #4caf50;
+    color: white;
+}
+
+.alert-error {
+    background: #f44336;
+    color: white;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(400px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+</style>
+{% endblock %}
+
 {% block content %}
-<section class="auth-section">
-    <div class="container">
-        <div class="auth-container">
-            <div class="auth-form-wrapper">
-                <div class="auth-header">
-                    <h2>Welcome Back</h2>
-                    <p>Sign in to your Smart Farming Assistant account</p>
+<div class="auth-wrapper">
+    <div class="auth-container">
+        <!-- Left Side - Branding -->
+        <div class="auth-left">
+            <h1>🌾 Smart Farming Assistant</h1>
+            <p>Empowering farmers with AI-driven insights and modern farming solutions</p>
+            <ul class="feature-list">
+                <li>Intelligent crop recommendations</li>
+                <li>Real-time weather forecasts</li>
+                <li>Disease detection & prevention</li>
+                <li>Market price predictions</li>
+                <li>Fertilizer recommendations</li>
+                <li>Growing activity tracker</li>
+            </ul>
+        </div>
+        
+        <!-- Right Side - Login Form -->
+        <div class="auth-right">
+            <div class="auth-header">
+                <h2>Login to Continue</h2>
+                <p>Get access to your farming dashboard</p>
+            </div>
+            
+            <form method="POST" action="{{ url_for('auth.login') }}">
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" name="email" required placeholder="Enter your email" autocomplete="email">
                 </div>
                 
-                <form method="POST" class="modern-form">
-                    <div class="form-group">
-                        <label for="email">Email Address</label>
-                        <input type="email" id="email" name="email" required placeholder="Enter your email">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="password">Password</label>
-                        <input type="password" id="password" name="password" required placeholder="Enter your password">
-                    </div>
-                    
-                    <button type="submit" class="btn btn-primary btn-full">Sign In</button>
-                </form>
-                
-                <div class="auth-footer">
-                    <p>Don't have an account? <a href="{{ url_for('auth.register') }}">Create one here</a></p>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" required placeholder="Enter your password" autocomplete="current-password">
                 </div>
+                
+                <button type="submit" class="btn-login">Login</button>
+            </form>
+            
+            <div class="auth-divider">
+                <span>OR</span>
+            </div>
+            
+            <div class="auth-footer">
+                <p>New to Smart Farming? <a href="{{ url_for('auth.register') }}">Create an account</a></p>
             </div>
         </div>
     </div>
-</section>
+</div>
+
+<!-- Flash Messages -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="flash-messages">
+        {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+{% endwith %}
 {% endblock %}

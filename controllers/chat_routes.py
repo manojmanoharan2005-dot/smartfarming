@@ -14,7 +14,7 @@ if not GEMINI_API_KEY:
     raise ValueError("GEMINI_API_KEY not found in .env file. Please add your API key to .env")
 genai.configure(api_key=GEMINI_API_KEY)
 
-# Initialize the model
+# Initialize the model - use gemini-2.5-flash
 model = genai.GenerativeModel('gemini-2.5-flash')
 
 # System context for the chatbot
@@ -67,41 +67,35 @@ def chat_message():
                 'error': 'Message cannot be empty'
             }), 400
         
-        # Get chat history from request (optional)
-        chat_history = data.get('history', [])
+        # Simple direct approach - no chat history for now
+        print(f"User message: {user_message}")
         
-        # Build conversation context
-        conversation = []
-        if chat_history:
-            for msg in chat_history[-5:]:  # Last 5 messages for context
-                conversation.append({
-                    'role': 'user' if msg.get('sender') == 'user' else 'model',
-                    'parts': [msg.get('text', '')]
-                })
+        # Create a new model instance for each request
+        chat_model = genai.GenerativeModel('gemini-2.5-flash')
         
-        # Start chat with context
-        chat = model.start_chat(history=conversation)
+        # Generate response with system context
+        prompt = f"{SYSTEM_CONTEXT}\n\nUser Question: {user_message}\n\nProvide a helpful, concise answer:"
         
-        # Send message with system context prepended for first message
-        if not conversation:
-            full_message = f"{SYSTEM_CONTEXT}\n\nUser: {user_message}"
-        else:
-            full_message = user_message
+        response = chat_model.generate_content(prompt)
         
-        response = chat.send_message(full_message)
+        print(f"Bot response: {response.text}")
         
         return jsonify({
             'success': True,
             'response': response.text,
-            'timestamp': None  # Frontend will add timestamp
+            'timestamp': None
         })
         
     except Exception as e:
-        print(f"Chatbot error: {str(e)}")
+        error_msg = str(e)
+        print(f"Chatbot error details: {error_msg}")
+        print(f"Error type: {type(e).__name__}")
+        
+        # Return more detailed error for debugging
         return jsonify({
             'success': False,
-            'error': 'Sorry, I encountered an error. Please try again.',
-            'details': str(e)
+            'error': f'API Error: {error_msg}',
+            'details': f'Check if API key is valid. Error type: {type(e).__name__}'
         }), 500
 
 @chat_bp.route('/test', methods=['GET'])
