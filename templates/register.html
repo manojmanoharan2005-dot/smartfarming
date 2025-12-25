@@ -2,337 +2,94 @@
 
 {% block title %}Register - Smart Farming Assistant{% endblock %}
 
-{% block styles %}
-<style>
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-body {
-    font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    background: #f1f3f6;
-    min-height: 100vh;
-}
-
-.auth-wrapper {
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 40px 20px;
-}
-
-.auth-container {
-    display: grid;
-    grid-template-columns: 400px 1fr;
-    max-width: 1200px;
-    width: 100%;
-    background: white;
-    border-radius: 4px;
-    overflow: hidden;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-}
-
-.auth-left {
-    background: linear-gradient(135deg, #2874f0 0%, #0d5bdd 100%);
-    padding: 50px 40px;
-    color: white;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-}
-
-.auth-left h1 {
-    font-size: 28px;
-    font-weight: 500;
-    margin-bottom: 15px;
-    line-height: 1.3;
-}
-
-.auth-left p {
-    font-size: 15px;
-    opacity: 0.9;
-    line-height: 1.6;
-}
-
-.feature-list {
-    list-style: none;
-    margin-top: 25px;
-}
-
-.feature-list li {
-    padding: 8px 0;
-    display: flex;
-    align-items: center;
-    font-size: 14px;
-}
-
-.feature-list li:before {
-    content: '✓';
-    display: inline-block;
-    margin-right: 10px;
-    font-weight: bold;
-    font-size: 16px;
-}
-
-.auth-right {
-    padding: 50px;
-}
-
-.auth-header {
-    margin-bottom: 25px;
-}
-
-.auth-header h2 {
-    font-size: 24px;
-    font-weight: 500;
-    color: #212121;
-    margin-bottom: 6px;
-}
-
-.auth-header p {
-    color: #878787;
-    font-size: 14px;
-}
-
-.form-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 15px;
-    margin-bottom: 15px;
-}
-
-.form-group {
-    margin-bottom: 15px;
-}
-
-.form-group label {
-    display: block;
-    color: #212121;
-    font-size: 13px;
-    font-weight: 500;
-    margin-bottom: 6px;
-}
-
-.form-group input,
-.form-group select {
-    width: 100%;
-    padding: 12px 14px;
-    border: 1px solid #e0e0e0;
-    border-radius: 2px;
-    font-size: 14px;
-    transition: all 0.3s ease;
-    font-family: inherit;
-}
-
-.form-group input:focus,
-.form-group select:focus {
-    outline: none;
-    border-color: #2874f0;
-    box-shadow: 0 0 0 2px rgba(40, 116, 240, 0.1);
-}
-
-.btn-register {
-    width: 100%;
-    padding: 14px;
-    background: #fb641b;
-    color: white;
-    border: none;
-    border-radius: 2px;
-    font-size: 15px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 2px 4px rgba(251, 100, 27, 0.3);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-top: 10px;
-}
-
-.btn-register:hover {
-    background: #e85d17;
-    box-shadow: 0 4px 8px rgba(251, 100, 27, 0.4);
-}
-
-.auth-footer {
-    text-align: center;
-    margin-top: 20px;
-    padding-top: 20px;
-    border-top: 1px solid #f0f0f0;
-}
-
-.auth-footer p {
-    color: #878787;
-    font-size: 14px;
-}
-
-.auth-footer a {
-    color: #2874f0;
-    text-decoration: none;
-    font-weight: 500;
-}
-
-.auth-footer a:hover {
-    text-decoration: underline;
-}
-
-@media (max-width: 992px) {
-    .auth-container {
-        grid-template-columns: 1fr;
-    }
-    
-    .auth-left {
-        display: none;
-    }
-    
-    .auth-right {
-        padding: 40px 30px;
-    }
-}
-
-@media (max-width: 600px) {
-    .form-row {
-        grid-template-columns: 1fr;
-    }
-}
-
-/* Flash Messages */
-.flash-messages {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    z-index: 10000;
-}
-
-.alert {
-    padding: 16px 20px;
-    border-radius: 4px;
-    margin-bottom: 10px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-    animation: slideIn 0.3s ease;
-}
-
-.alert-success {
-    background: #4caf50;
-    color: white;
-}
-
-.alert-error {
-    background: #f44336;
-    color: white;
-}
-
-@keyframes slideIn {
-    from {
-        transform: translateX(400px);
-        opacity: 0;
-    }
-    to {
-        transform: translateX(0);
-        opacity: 1;
-    }
-}
-</style>
-{% endblock %}
-
 {% block content %}
-<div class="auth-wrapper">
-    <div class="auth-container">
-        <!-- Left Side - Branding -->
-        <div class="auth-left">
-            <h1>🌾 Join Smart Farming</h1>
-            <p>Start your journey towards smarter, data-driven farming today</p>
-            <ul class="feature-list">
-                <li>Personalized crop recommendations</li>
-                <li>Weather-based farming alerts</li>
-                <li>AI-powered disease detection</li>
-                <li>Market intelligence & pricing</li>
-                <li>Smart irrigation planning</li>
-                <li>Expert farming guidance</li>
-            </ul>
-        </div>
-        
-        <!-- Right Side - Register Form -->
-        <div class="auth-right">
-            <div class="auth-header">
-                <h2>Create Your Account</h2>
-                <p>Fill in your details to get started</p>
-            </div>
-            
-            <form method="POST" action="{{ url_for('auth.register') }}">
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="name">Full Name</label>
-                        <input type="text" id="name" name="name" required placeholder="Enter your name">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="email">Email Address</label>
-                        <input type="email" id="email" name="email" required placeholder="Enter your email">
-                    </div>
+<section class="auth-section">
+    <div class="container">
+        <div class="auth-container">
+            <div class="auth-form-wrapper register-form">
+                <div class="auth-header">
+                    <h2>Create Your Account</h2>
+                    <p>Join thousands of farmers using smart technology</p>
                 </div>
                 
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="phone">Phone Number</label>
-                        <input type="tel" id="phone" name="phone" required placeholder="Enter phone number">
+                <form method="POST" class="modern-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="name">Full Name</label>
+                            <input type="text" id="name" name="name" required placeholder="Enter your full name">
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email Address</label>
+                            <input type="email" id="email" name="email" required placeholder="Enter your email">
+                        </div>
                     </div>
                     
-                    <div class="form-group">
-                        <label for="password">Password</label>
-                        <input type="password" id="password" name="password" required placeholder="Create password">
-                    </div>
-                </div>
-                
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="state">State</label>
-                        <select id="state" name="state" required>
-                            <option value="">Select State</option>
-                            <option value="Tamil Nadu">Tamil Nadu</option>
-                            <option value="Karnataka">Karnataka</option>
-                            <option value="Kerala">Kerala</option>
-                            <option value="Andhra Pradesh">Andhra Pradesh</option>
-                            <option value="Telangana">Telangana</option>
-                            <option value="Maharashtra">Maharashtra</option>
-                            <option value="Gujarat">Gujarat</option>
-                            <option value="Rajasthan">Rajasthan</option>
-                            <option value="Punjab">Punjab</option>
-                            <option value="Haryana">Haryana</option>
-                            <option value="Uttar Pradesh">Uttar Pradesh</option>
-                            <option value="Madhya Pradesh">Madhya Pradesh</option>
-                            <option value="West Bengal">West Bengal</option>
-                        </select>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="password">Password</label>
+                            <input type="password" id="password" name="password" required placeholder="Create password">
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">Phone Number</label>
+                            <input type="tel" id="phone" name="phone" pattern="[0-9]{10}" required placeholder="10-digit mobile number">
+                        </div>
                     </div>
                     
-                    <div class="form-group">
-                        <label for="district">District</label>
-                        <input type="text" id="district" name="district" required placeholder="Enter district">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="state">State</label>
+                            <select id="state" name="state" required onchange="updateDistricts()">
+                                <option value="">Select your state</option>
+                                {% for state in states_districts.keys() %}
+                                    <option value="{{ state }}">{{ state }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="district">District</label>
+                            <select id="district" name="district" required>
+                                <option value="">Select your district</option>
+                            </select>
+                        </div>
                     </div>
-                </div>
+                    
+                    <button type="submit" class="btn btn-primary btn-full">Create Account</button>
+                </form>
                 
-                <button type="submit" class="btn-register">Create Account</button>
-            </form>
-            
-            <div class="auth-footer">
-                <p>Already have an account? <a href="{{ url_for('auth.login') }}">Login here</a></p>
+                <div class="auth-footer">
+                    <p>Already have an account? <a href="{{ url_for('auth.login') }}">Sign in here</a></p>
+                </div>
             </div>
         </div>
     </div>
-</div>
+</section>
 
-<!-- Flash Messages -->
-{% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-    <div class="flash-messages">
-        {% for category, message in messages %}
-        <div class="alert alert-{{ category }}">
-            {{ message }}
-        </div>
-        {% endfor %}
-    </div>
-    {% endif %}
-{% endwith %}
+<script>
+// Store states and districts data safely
+var statesDistricts = {};
+{% for state, districts in states_districts.items() %}
+statesDistricts["{{ state }}"] = [
+    {% for district in districts %}
+    "{{ district }}"{{ "," if not loop.last else "" }}
+    {% endfor %}
+];
+{% endfor %}
+
+function updateDistricts() {
+    const stateSelect = document.getElementById('state');
+    const districtSelect = document.getElementById('district');
+    const selectedState = stateSelect.value;
+    
+    districtSelect.innerHTML = '<option value="">Select your district</option>';
+    
+    if (selectedState && statesDistricts[selectedState]) {
+        statesDistricts[selectedState].forEach(function(district) {
+            const option = document.createElement('option');
+            option.value = district;
+            option.textContent = district;
+            districtSelect.appendChild(option);
+        });
+    }
+}
+</script>
 {% endblock %}
